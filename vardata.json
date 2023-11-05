@@ -1,0 +1,36 @@
+{
+    "batches": [
+        {
+            "data": [
+                {
+                    "delta_nabla_w": "after all updates",
+                    "delta_nabla_b": "after all updates",
+
+                    "old_nabla_w": "after all updates",
+                    "old_nabla_b": "after all updates",
+                    
+                    "new_nabla_w": "after all updates",
+                    "new_nabla_b": "after all updates",
+                    "backprop": {
+                        "a": "array",
+                        "zs": "array",
+                        "delta": "",
+                        "layers": [
+                            {
+                                "sp": "",
+                                "delta": ""
+                            }
+                        ]
+                    }
+                }
+            ],
+            
+            "nabla_w": "after all updates",
+            "nabla_b": "after all updates",
+            "old_weights": "",
+            "new_weights": "array<matrix>",
+            "old_biases": "",
+            "new_biases": "array<matrix>"
+        }
+    ]
+}

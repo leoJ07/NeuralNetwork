@@ -1,17 +1,21 @@
 const math = require("mathjs")
 const bm = require("jsboxmuller")
+const fs = require("fs")
 
 class NeuralNetwork {
+
   constructor(structure = [], debug = false) {
-    if(structure.length < 2) throw new Error("The network structure has to have atleast one input and one output layer")
+    if(structure.length < 2) throw new Error("The network structure has to have at least one input and one output layer")
     
     this.structure = [...structure]
     this.layers = structure.length
     this.inputs = structure[-1] = structure.shift()
     this.debuging = debug
+
+    this.buffer = { batches: [] }
     
-    this.weights = new Array(structure.length).fill().map((x, l) => this.createSNDRandomMatrix([structure[l], structure[l-1]]))
-    this.biases = new Array(structure.length).fill().map((x, l) => this.createSNDRandomMatrix([structure[l], 1]))
+    this.weights = structure.map((x, l) => this.createSNDRandomMatrix([structure[l], structure[l-1]]))
+    this.biases = structure.map((x, l) => this.createSNDRandomMatrix([structure[l], 1]))
   }
 
   forward(a) {
@@ -41,7 +45,7 @@ class NeuralNetwork {
     let n_test, n = trainingData.length
     if(testData) n_test = testData.length
 
-    for(let j = 1; j <= epochs; j++) {
+    for(let j = 1; j <= epochs; j++) {      
       trainingData.sort((a, b) => 0.5 - Math.random())
       let miniBatches = []
       for(let i = 0; i < n; i += batchSize) {
@@ -67,7 +71,7 @@ class NeuralNetwork {
     this.biases.forEach(b => nabla_b.push(math.zeros(math.size(b))))
 
     for(let i = 0; i < minibatch.length; i++) {
-      let { nabla_w: delta_nabla_w, nabla_b: delta_nabla_b } = this.backprop(minibatch[i].input, minibatch[i].output)
+      let [ delta_nabla_w, delta_nabla_b ] = this.backprop(minibatch[i].input, minibatch[i].output)
       
       nabla_w = nabla_w.map((nw, i) => math.add(nw, delta_nabla_w[i]))
       nabla_b = nabla_b.map((nb, i) => math.add(nb, delta_nabla_b[i]))
@@ -80,7 +84,7 @@ class NeuralNetwork {
     this.biases = this.biases.map((b, i) => math.subtract(b, math.multiply(nabla_b[i], eta/minibatch.length)))
   }
 
-  backprop(x, y) {
+  backprop(x, y) { // d is for gathering debugging data
     // if(math.size(x).length != 1 || math.size(y).length != 1) throw new Error("The input and output must be a vector")
     
     // if(math.size(x)[0] != this.inputs) throw new Error("Input data isn't the same size as the networks input layer. " + math.size(x) + " != " + this.inputs)
@@ -131,12 +135,12 @@ class NeuralNetwork {
       let sp = math.map(z, e => this.sigmoid_prime(e))
       
       error = math.dotMultiply(math.multiply(math.transpose(this.weights[this.weights.length - l + 1]), error), sp)
-      
+
       nabla_b[nabla_b.length - l] = error
       nabla_w[nabla_w.length - l] = math.multiply(error, math.transpose(activations[activations.length - l - 1]))
     }
     
-    return { nabla_w, nabla_b }
+    return [ nabla_w, nabla_b ]
   }
 
   evaluate(testData) {
@@ -172,6 +176,10 @@ class NeuralNetwork {
   debug(...strings) {
     if(!this.debuging) return
     console.log(...strings)
+  }
+
+  writeBufferToFile(file) {
+    fs.writeFileSync(file, JSON.stringify(this.buffer, undefined, "\n"))
   }
 }
 

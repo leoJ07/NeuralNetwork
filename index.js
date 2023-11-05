@@ -6,8 +6,8 @@ const { NeuralNetwork } = require("./NeuralNetwork.js")
 
 
 console.log("==== loading training and test data ====")
-const trainingData = MNIST.load("./data/training-images", "./data/training-lables", 300)
-const testData = MNIST.load("./data/test-images", "./data/test-lables", 100)
+const trainingData = MNIST.load("./data/training-images", "./data/training-lables")
+const testData = MNIST.load("./data/test-images", "./data/test-lables")
 
 console.log("==== seting up the neural network ====")
 let n = new NeuralNetwork([784, 30, 10], false)
@@ -22,6 +22,8 @@ n.SGD(trainingData, 30, 10, 3.0, testData) // training, epocs, batchsize, eta, t
 // console.log("before:", b, "=", e.output)
 // console.log("after:", n.forward(e.input), "=", e.output)
 // console.log(n.backprop())
+
+n.writeBufferToFile("./data.json")
 
 
 
